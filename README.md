@@ -59,7 +59,7 @@
 
 ## **Architecture**
 
-![Architecture Diagram](insurelytics_architecture.png)
+![Architecture Diagram]
 
 **Flow**
 1. **Auth**: client logs in; backend issues **JWT**  
