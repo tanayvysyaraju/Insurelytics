@@ -1,81 +1,221 @@
-# Insurelytics
+Insurelytics
 
-This repository contains a full–stack insurance analytics platform built with **Spring Boot** on the backend and **React** on the frontend.  It includes JWT–based user authentication, dashboards for summarising policies and investments, a real–time return calculator, a policy comparison engine and a visual policy timeline.  To help you deploy confidently, the project ships with a multi–stage Docker build, a Helm chart for Kubernetes, and a CI/CD pipeline wired through GitHub Actions.  Observability is baked in via Spring Boot Actuator, Micrometer with Prometheus, and a ready–to–import Grafana dashboard.
+A Full-Stack Insurance & Investment Analytics Platform with Enterprise-Grade DevOps, Observability, and AI-Ready Capabilities
 
-## Features
+Overview
 
-- **Account Summary Dashboard** – aggregate a user’s policies, investments, transactions and upcoming premiums.  The `/dashboard/summary` endpoint returns a single DTO with pre–computed totals and the frontend displays this data in charts and cards.
-- **Real‑Time Return Calculator** – POST to `/calculator/returns` with an investment amount and duration to receive a compound–interest projection; results are graphed in the UI.
-- **Policy Comparison Engine** – GET `/policies/compare` with a list of IDs and receive a side‑by‑side comparison of premiums, durations and expected returns.
-- **Visual Policy Timeline** – GET `/policies/timeline` to retrieve milestone dates (premium due dates, lock‑in periods, payout points) for each policy.
-- **JWT Authentication** – register and login endpoints issue signed tokens which must be supplied to all secured routes.  Tokens expire after a configurable period and passwords are hashed with BCrypt.
-- **Observability** – Micrometer exposes application metrics at `/actuator/prometheus`.  A sample Grafana dashboard (JSON) is provided in the `grafana` directory.
-- **DevOps‑ready** – `Dockerfile` and `docker-compose.local.yml` allow you to run the full stack locally.  The `helm` directory contains a Helm chart that deploys the backend and frontend with sensible defaults, including resource requests, liveness/readiness probes and environment variables for connecting to your database.  The `.github/workflows` directory includes a GitHub Actions workflow that runs tests, builds and pushes Docker images and performs a `helm upgrade` to your cluster.
+Insurelytics is a Spring Boot + React platform for managing insurance policies, tracking investments, and forecasting financial returns. It is production-minded from the start: Dockerized, deployable to Kubernetes via Helm, fully CI/CD-automated with GitHub Actions, and instrumented with Micrometer → Prometheus → Grafana for SRE-grade visibility.
 
-## Getting Started
+Core functionality:
+	•	Dynamic account dashboard summarizing policies, investments, premiums, and projected growth
+	•	Real-time return calculator with compound/annuity models and optional risk adjustments
+	•	Policy comparison engine for side-by-side evaluation
+	•	Visual policy timeline highlighting milestones and payouts
+	•	JWT-based authentication and role-ready authorization
+	•	Grafana dashboards tracking both system health and business KPIs
 
-### Prerequisites
+⸻
 
-- Java 17 (for the Spring Boot backend)
-- Node.js 18 or later (for the React frontend)
-- Docker and Docker Compose
+Features
 
-### Running Locally
+1. Account Summary Dashboard
 
-To start the database, backend, frontend, Prometheus and Grafana locally, run:
+What: Aggregated view of total invested, current value, upcoming premiums, and projected growth.
+How: GET /dashboard/summary orchestrates JPA queries across Policy, Investment, and Transaction entities, then returns a DTO optimized for the frontend.
+Why it matters: Demonstrates service layering, DTO usage, and aggregation logic for read-heavy endpoints.
 
-```bash
-cd insurelytics-pro
+2. Real-Time Return Calculator
+
+What: Simulates returns over time with compound interest and annuity formulas, optionally including policy-specific risk factors.
+How: POST /calculator/returns executes a calculation service; the frontend renders the output dynamically in a chart.
+Why it matters: Showcases separation of calculation logic from controllers and a responsive UI data flow.
+
+3. Policy Comparison Engine
+
+What: Compares selected policies by premium, duration, and expected return.
+How: GET /policies/compare?ids=1,2,3 returns minimal, frontend-friendly JSON for rendering comparison tables or cards.
+Why it matters: Demonstrates query shaping, DTO patterns, and user-driven API design.
+
+4. Visual Policy Timeline
+
+What: Gantt-style timeline of important policy milestones such as payment due dates, lock-in periods, and payouts.
+How: GET /policies/timeline returns labeled timestamps; the frontend renders them in a timeline chart.
+Why it matters: Highlights event modeling and clear temporal domain representation.
+
+5. JWT-Based Authentication
+
+What: Stateless authentication with signed JWT and secure password storage.
+How: /auth/register and /auth/login endpoints with Spring Security filter chain to validate Authorization: Bearer <token>.
+Why it matters: Implements secure, production-grade authentication ready for RBAC expansion.
+
+6. CI/CD Pipeline (GitHub Actions + Helm)
+
+What: Automatic testing, building, and deployment to Kubernetes on push to main.
+How: GitHub Actions runs unit tests, builds Docker images, pushes to a container registry, and runs helm upgrade --install.
+Why it matters: Ensures repeatable builds and automated deployments.
+
+7. Observability (Prometheus + Grafana)
+
+What: Golden-signal metrics (latency, errors, throughput) and custom business metrics (average ROI).
+How: Micrometer + Actuator expose /actuator/prometheus, Prometheus scrapes metrics, Grafana visualizes them.
+Why it matters: Provides both operational reliability and product analytics in one monitoring stack.
+
+⸻
+
+Tech Stack
+
+Frontend
+	•	React with Axios and React Router
+	•	Material UI for responsive, production-grade components
+	•	Chart.js / Recharts for visualizations
+
+Backend
+	•	Spring Boot (MVC, JPA, Security, WebClient)
+	•	PostgreSQL for relational data integrity
+	•	Micrometer + Spring Actuator for metrics
+	•	JWT authentication with Spring Security and BCrypt
+
+DevOps and Deployment
+	•	Docker multi-stage builds for backend and frontend
+	•	Kubernetes manifests with Helm charts
+	•	GitHub Actions for CI/CD, including testing and automated deployment
+	•	Prometheus + Grafana for metrics and dashboards
+
+⸻
+
+Architecture
+
+Flow:
+	1.	User logs in, backend issues JWT
+	2.	React frontend uses Axios to call Spring Boot APIs with JWT in Authorization header
+	3.	Backend aggregates data from PostgreSQL via JPA
+	4.	Metrics exposed at /actuator/prometheus, scraped by Prometheus, displayed in Grafana
+	5.	CI/CD pipeline runs tests, builds/pushes Docker images, deploys with Helm
+
+Operational design:
+	•	Stateless services with Kubernetes health/readiness probes
+	•	Configurable via environment variables and Helm values
+	•	Clear layering of controllers, services, repositories, and entities
+
+⸻
+
+Getting Started
+
+Prerequisites
+	•	Docker and Docker Compose
+	•	Java 17 and Maven
+	•	Node.js (optional for standalone frontend dev)
+	•	kubectl and Helm (optional for Kubernetes deployment)
+
+Local Run with Docker Compose
+
+git clone https://github.com/<yourusername>/Insurelytics.git
+cd Insurelytics
 docker compose -f docker-compose.local.yml up --build
-```
 
-This will expose the frontend at http://localhost:8080, the backend at http://localhost:8081, Prometheus at http://localhost:9090 and Grafana at http://localhost:3000 (default login: `admin` / `admin`).
+Default URLs
+	•	Frontend: http://localhost:3000
+	•	Backend: http://localhost:8081
+	•	Grafana: http://localhost:3001 (default login: admin/admin)
+	•	Prometheus: http://localhost:9090
 
-Alternatively you can run the backend and frontend separately for development with hot–reload:
+Example API flow:
 
-```bash
-# start Postgres
-docker compose -f docker-compose.local.yml up -d db
+# Register
+curl -X POST http://localhost:8081/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"demo","password":"demo"}'
 
-# start backend
+# Login
+TOKEN=$(curl -s -X POST http://localhost:8081/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"demo","password":"demo"}' | jq -r .token)
+
+# Access a protected route
+curl -H "Authorization: Bearer $TOKEN" \
+  http://localhost:8081/dashboard/summary
+
+
+⸻
+
+Key REST Endpoints
+
+Method	Endpoint	Purpose
+GET	/dashboard/summary	Account summary data
+POST	/calculator/returns	Calculate returns
+GET	/policies/compare	Compare policies
+GET	/policies/timeline	Timeline milestones
+POST	/auth/login	JWT login
+POST	/auth/register	Create user account
+
+
+⸻
+
+Testing
+
+Backend
+
 cd backend
-./mvnw spring-boot:run
+mvn test
 
-# start frontend
-cd ../frontend
-npm install
-npm run dev
-```
+Frontend
 
-### Kubernetes Deployment
+cd frontend
+npm test
 
-The `helm/` directory contains a simple Helm chart that deploys the backend and frontend.  To deploy to your cluster:
 
-```bash
-cd insurelytics-pro/helm
-helm upgrade --install insurelytics . -n <namespace> --create-namespace \
-  --set backend.image.tag=<backend-image-tag> \
-  --set frontend.image.tag=<frontend-image-tag>
-```
+⸻
 
-You will need to provide a Postgres instance (or use your cloud provider’s database service) and set the appropriate environment variables (see `values.yaml`).
+Observability
 
-### Continuous Deployment
+System metrics:
+	•	HTTP request rate and error rate
+	•	Latency histograms (p50, p95, p99)
+	•	JVM heap usage and garbage collection
 
-The GitHub Actions workflow located at `.github/workflows/main.yml` demonstrates how to automate testing, build, image push and Helm deployment on every push to `main`.  Store your secrets (Docker registry credentials, kubeconfig, etc.) in GitHub secrets.  This workflow is designed to work with GHCR but can be adapted to any OCI registry.
+Business metrics:
+	•	Average ROI across all users
+	•	Feature usage counts
 
-## Directory Structure
+Metrics are scraped by Prometheus and visualized in Grafana dashboards preconfigured for both technical and business KPIs.
 
-```
-insurelytics-pro/
-├── backend/        # Spring Boot application
-├── frontend/       # React client
-├── helm/           # Helm chart for Kubernetes deployment
-├── grafana/        # Sample Grafana dashboard
-├── docker-compose.local.yml  # Local dev environment
-└── .github/workflows/   # CI/CD pipeline
-```
+⸻
 
-## License
+CI/CD Pipeline
 
-This project is provided for educational purposes and carries no warranty.  Use it as a starting point for your own applications.
+On push to main:
+	•	Run backend and frontend unit tests
+	•	Build and push Docker images to container registry
+	•	Deploy to Kubernetes using Helm
+
+Benefits:
+	•	Reproducible builds
+	•	Automated deployments
+	•	Fast rollback via Helm release history
+
+⸻
+
+Security Highlights
+	•	Stateless JWT authentication with signature validation
+	•	BCrypt password hashing
+	•	Minimal-privilege database credentials per environment
+	•	Runtime secrets injection through CI/CD and Kubernetes secrets
+	•	Configurable CORS and HTTP security headers
+
+⸻
+
+SRE and Production Considerations
+	•	Kubernetes liveness/readiness probes for rolling updates
+	•	Configurable CPU/memory requests and limits for autoscaling readiness
+	•	Monitoring with Prometheus + Grafana for golden signals and business metrics
+	•	Centralized logging to stdout, compatible with log aggregation stacks
+	•	Potential resilience patterns (e.g., Resilience4j) for retries and circuit breaking
+
+⸻
+
+Roadmap
+	•	AI-driven policy recommendations (Spring AI)
+	•	Database migrations via Flyway
+	•	OpenAPI/Swagger documentation for endpoints
+	•	Advanced RBAC with an admin dashboard
+	•	Dark mode UI and additional visualizations
