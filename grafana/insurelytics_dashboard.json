@@ -1,0 +1,20 @@
+{
+  "__inputs": [],
+  "__elements": [],
+  "annotations": {
+    "list": []
+  },
+  "panels": [],
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["insurelytics"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "title": "Insurelytics Overview",
+  "version": 1
+}

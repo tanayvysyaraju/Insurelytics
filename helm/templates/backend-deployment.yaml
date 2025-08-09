@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "insurelytics.fullname" . }}-backend
+  labels:
+    app: {{ include "insurelytics.name" . }}
+    component: backend
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "insurelytics.name" . }}
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: {{ include "insurelytics.name" . }}
+        component: backend
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.backend.env.DB_HOST | quote }}
+            - name: DB_PORT
+              value: {{ .Values.backend.env.DB_PORT | quote }}
+            - name: DB_NAME
+              value: {{ .Values.backend.env.DB_NAME | quote }}
+            - name: DB_USERNAME
+              value: {{ .Values.backend.env.DB_USERNAME | quote }}
+            - name: DB_PASSWORD
+              value: {{ .Values.backend.env.DB_PASSWORD | quote }}
+          ports:
+            - name: http
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
